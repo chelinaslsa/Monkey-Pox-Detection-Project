@@ -29,4 +29,5 @@ def load_model_and_metadata():
     metadata = joblib.load(metadata_path)
     return model, metadata
 
-model, metada
+model, metadata
+
