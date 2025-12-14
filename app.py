@@ -17,9 +17,15 @@ model_path = 'monkeypox_model_final.keras'
 def load_model_and_metadata():
     metadata_path = 'model_metadata.pkl' 
     
+    st.write("Current working directory:", os.getcwd())
+    st.write("Checking model file...")
+    
     if not os.path.exists(model_path):
         url = f'https://drive.google.com/uc?id={model_file_id}'
-        gdown.download(url, model_path, quiet=False)
+        gdown.download(url, 
+                       model_path, 
+                       quiet=False,
+                      fuzzy=True)
     if not os.path.exists(model_path):
         st.error("Model file not found after download. Check Drive link / permission.")
         st.stop()
@@ -105,3 +111,4 @@ if uploaded_file is not None:
                 st.progress(int(prob_percent))
                 st.caption(f"{prob_percent:.2f}%")
                 st.write("")
+
