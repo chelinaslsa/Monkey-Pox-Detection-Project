@@ -10,7 +10,7 @@ import gdown
 
 # Load model
 IMG_SIZE = (224, 224)
-model_file_id = '1Qzsnv5-RmceIBtSfXngdPWaIWJwJiHab'
+model_file_id = "1Qzsnv5-RmceIBtSfXngdPWaIWJwJiHab"
 model_path = 'monkeypox_model_final.keras'
 
 @st.cache_resource
@@ -20,13 +20,15 @@ def load_model_and_metadata():
     if not os.path.exists(model_path):
         url = f'https://drive.google.com/uc?id={model_file_id}'
         gdown.download(url, model_path, quiet=False)
-    
+    if not os.path.exists(model_path):
+        st.error("Model file not found after download. Check Drive link / permission.")
+        st.stop()
+
+    model = tf.keras.models.load_model(model_path, compile=False)    
+
     if not os.path.exists(metadata_path):
         st.error(f"Metadata file not found: {metadata_path}")
         return None, None
-    
-    # Load model Keras
-    model = tf.keras.models.load_model(model_path)
     
     # Load metadata
     metadata = joblib.load(metadata_path)
