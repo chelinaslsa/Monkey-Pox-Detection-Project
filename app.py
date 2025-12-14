@@ -29,5 +29,62 @@ def load_model_and_metadata():
     metadata = joblib.load(metadata_path)
     return model, metadata
 
-model, metadata
+model, metadata = load_model_and_metadata()
+class_names = metadata["class_names"]
 
+def preprocess_image(uploaded_image):
+    img = uploaded_image.resize(IMG_SIZE)
+    img_array = keras_image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = preprocess_input(img_array)
+    return img_array
+
+st.markdown(
+    "<h1 style='text-align: center;'>Monkeypox Detection 🐒</h1>",
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    Monkeypox Skin Detection System  
+    This system uses a **ResNet50-based Deep Learning model** to classify skin lesions into:
+    - Acne
+    - Chickenpox
+    - Measles
+    - Monkeypox
+    """
+)
+
+uploaded_file = st.file_uploader(
+    "Upload skin image (JPG/PNG)",
+    type=["jpg", "jpeg", "png"]
+)
+
+if uploaded_file:
+    uploaded_image = Image.open(uploaded_file).convert("RGB")
+    st.image(uploaded_image, caption="Uploaded Image")
+
+    if st.button("Predict"):
+        processed_image = preprocess_image(uploaded_image)
+        predictions = model.predict(processed_image, verbose=0)
+
+        idx = np.argmax(predictions[0])
+        predicted_class = class_names[idx]
+        confidence = predictions[0][idx] * 100
+
+        if predicted_class == "Monkeypox":
+            st.error(f"### Detection result: {predicted_class}")
+        elif predicted_class in ["Measles", "Chickenpox"]:
+            st.warning(f"### Detection result: {predicted_class}")
+        else:
+            st.success(f"### Detection result: {predicted_class}")
+
+        st.metric("Model confidence score", f"{confidence:.2f}%")
+
+        st.write("---")
+        st.write("Class probability:")
+        for i, cls in enumerate(class_names):
+            prob = predictions[0][i] * 100
+            st.write(f"**{cls}**")
+            st.progress(int(prob))
+            st.caption(f"{prob:.2f}%")
