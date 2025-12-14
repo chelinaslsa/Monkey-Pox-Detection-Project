@@ -17,7 +17,7 @@ def load_model_and_metadata():
     metadata_path = "model_metadata.pkl"
 
     model_path = hf_hub_download(
-        repo_id="chelinasalsa/monkeypox-resnet50",
+        repo_id="chelinaslsa/monkeypox-resnet50",
         filename="monkeypox_model_final.keras"
     )
 
@@ -88,4 +88,5 @@ if uploaded_file:
             st.write(f"**{cls}**")
             st.progress(int(prob))
             st.caption(f"{prob:.2f}%")
+
 
