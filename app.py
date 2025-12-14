@@ -6,30 +6,20 @@ from PIL import Image
 import tensorflow as tf
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.preprocessing import image as keras_image
-import gdown
+from huggingface_hub import hf_hub_download
 
 # Load model
 IMG_SIZE = (224, 224)
-model_file_id = "1Qzsnv5-RmceIBtSfXngdPWaIWJwJiHab"
-model_path = 'monkeypox_model_final.keras'
 
 @st.cache_resource
 def load_model_and_metadata():
     metadata_path = 'model_metadata.pkl' 
-    
-    st.write("Current working directory:", os.getcwd())
-    st.write("Checking model file...")
-    
-    if not os.path.exists(model_path):
-        url = f'https://drive.google.com/uc?id={model_file_id}'
-        gdown.download(url, 
-                       model_path, 
-                       quiet=False,
-                      fuzzy=True)
-    if not os.path.exists(model_path):
-        st.error("Model file not found after download. Check Drive link / permission.")
-        st.stop()
 
+    model_path = hf_hub_download(
+        repo_id="chelinaslsa/monkeypox-resnet50", 
+        filename="monkeypox_model_final.keras"
+    )
+    
     model = tf.keras.models.load_model(model_path, compile=False)    
 
     if not os.path.exists(metadata_path):
@@ -111,4 +101,5 @@ if uploaded_file is not None:
                 st.progress(int(prob_percent))
                 st.caption(f"{prob_percent:.2f}%")
                 st.write("")
+
 
